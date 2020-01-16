@@ -5,7 +5,7 @@ services:
     container_name: plex
     environment:
       - TZ="Europe/Paris"
-      - PLEX_CLAIM=""claim-xxxxxxxxxxxxxx
+      - PLEX_CLAIM="claim-xxxxxxxxxxxxxx"
       - ADVERTISE_IP="http://plex.example.com:32400/"
       - PLEX_UID=ubuntu
       - PLEX_GID=ubuntu
