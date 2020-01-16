@@ -6,7 +6,7 @@ services:
     environment:
       - TZ="Europe/Paris"
       - PLEX_CLAIM="claim-xxxxxxxxxxxxxx"
-      - ADVERTISE_IP="http://plex.example.com:32400/"
+      - ADVERTISE_IP="https://plex.example.com"
       - PLEX_UID=ubuntu
       - PLEX_GID=ubuntu
     volumes:
