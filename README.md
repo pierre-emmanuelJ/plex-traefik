@@ -41,11 +41,6 @@ Go to https://plex.example.com/web and follow plex installation.
 
 enable remote access during installation
 
-In Setting replace with your server url and `http` > `https`
-![image](https://user-images.githubusercontent.com/15922119/64863170-89cbf780-d634-11e9-8e58-22f94c5b5ad3.png)
-this setting is to allow plex.tv to acess your server
-
-
 Don't worry about remote access in red, you can acess your plex server anyway with your server url or passing by https://app.plex.tv
 
 ### FINISH
