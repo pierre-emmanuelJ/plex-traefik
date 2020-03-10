@@ -29,7 +29,9 @@ Get a claim token on this link https://plex.tv/claim and replace in `docker-comp
 Make sure to replace the env variable value `ADVERTISE_IP=https://plex.example.com`
 with your desired domain.
 
-/!\ important if you want Plex Apps access your server remotely
+/!\ important if you want Plex Apps access your server remotely.
+
+Run it now
 
 ```Shell
 $ docker-compose up -d
