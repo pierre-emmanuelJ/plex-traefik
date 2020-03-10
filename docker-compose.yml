@@ -4,9 +4,9 @@ services:
     image: plexinc/pms-docker
     container_name: plex
     environment:
-      - TZ="Europe/Paris"
-      - PLEX_CLAIM="claim-xxxxxxxxxxxxxx"
-      - ADVERTISE_IP="https://plex.example.com"
+      - TZ=Europe/Paris
+      - PLEX_CLAIM=claim-xxxxxxxxxxxxxx
+      - ADVERTISE_IP=https://plex.example.com
       - PLEX_UID=ubuntu
       - PLEX_GID=ubuntu
     volumes:
