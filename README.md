@@ -6,7 +6,7 @@ Plex media server with traefik in docker and docker-compose
 
 Clone the repo
 ```Shell
-$ git clone git@github.com:pierre-emmanuelJ/plex-traefik.git
+$ git clone https://github.com/pierre-emmanuelJ/plex-traefik.git
 ```
 ```Shell
 $ cd plex-traefik
