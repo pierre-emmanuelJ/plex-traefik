@@ -18,7 +18,7 @@ $ mkdir config && mkdir data && mkdir transcode
 $ touch acme.json && chmod 600 acme.json
 ```
 
-In `docker-compose.yml` replace all `plex.example.com` by your desired domain.
+In `docker-compose.yml` and `traefik.toml` replace all `plex.example.com` by your desired domain.
 
 
 Get a claim token on this link https://plex.tv/claim and replace in `docker-compose.yml` 
