@@ -8,28 +8,29 @@ Clone the repo
 ```Shell
 $ git clone https://github.com/pierre-emmanuelJ/plex-traefik.git
 ```
+
 ```Shell
 $ cd plex-traefik
 ```
+
 ```Shell
-$ mkdir config && mkdir data && mkdir transcode
-```
-```Shell
-$ touch acme.json && chmod 600 acme.json
+$ mkdir config \
+        && mkdir data \
+        && mkdir transcode \
+        && mkdir -p Traefik/etc/traefik \
+        && mkdir -p Traefik/log
 ```
 
-In `docker-compose.yml` and `traefik.toml` replace all `plex.example.com` by your desired domain.
+In `docker-compose.yml` replace all `plex.example.com` by your desired domain.
 
 
 Get a claim token on this link https://plex.tv/claim and replace in `docker-compose.yml` 
 
-
 `- PLEX_CLAIM=claim-xxx....`
 
-Make sure to replace the env variable value `ADVERTISE_IP=https://plex.example.com`
-with your desired domain.
+/!\ important if you want Plex Apps access your server remotely:
 
-/!\ important if you want Plex Apps access your server remotely.
+Make sure to replace the env variable value `ADVERTISE_IP=https://<plex.example.com>:443` with your desired domain.
 
 Run it now
 
@@ -41,7 +42,7 @@ $ docker-compose up -d
 $ sudo chown -R $USER * # or chown only created folders recursively 
 ```
 
-Then 
+Then
 
 Go to https://plex.example.com/web and follow plex installation.
 

@@ -1,52 +1,49 @@
 version: "3"
 services:
   plex:
-    image: plexinc/pms-docker
+    image: plexinc/pms-docker:1.19.1.2645-ccb6eb67e
     container_name: plex
     environment:
       - TZ=Europe/Paris
       - PLEX_CLAIM=claim-xxxxxxxxxxxxxx
-      - ADVERTISE_IP=https://plex.example.com
-      - PLEX_UID=ubuntu
-      - PLEX_GID=ubuntu
+      - ADVERTISE_IP=https://plex.example.com:443
+      - PLEX_UID=${USER}
+      - PLEX_GID=${USER}
+      - VERSION=docker
     volumes:
       - ./config:/config
       - ./transcode:/transcode
       - ./data:/data
-    hostname: plex.pej.ovh
-    #network_mode: host
-    #    ports:
-    # - 32400:32400/tcp
-    # - 3005:3005/tcp
-    # - 8324:8324/tcp
-    # - 32469:32469/tcp
-    # - 1900:1900/udp
-    # - 32410:32410/udp
-    # - 32412:32412/udp
-    # - 32413:32413/udp
-    # - 32414:32414/udp
-    restart: unless-stopped
+    hostname: plex.example.com
+    ports:
+     - 32400:32400/tcp
+     - 32400:32400/udp
+     - 3005:3005/tcp
+     - 8324:8324/tcp
+     - 32469:32469/tcp
+     - 1900:1900/udp
+     - 32410:32410/udp
+     - 32412:32412/udp
+     - 32413:32413/udp
+     - 32414:32414/udp
+    restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.port=32400"
-      - "traefik.frontend.rule=Host:plex.example.com"
-
+      - "traefik.http.routers.plex.rule=Host(`plex.example.com`)"
+      - "traefik.http.routers.plex.entrypoints=websecure"
+      - "traefik.http.routers.plex.tls.certresolver=mydnschallenge"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
 
   traefik:
-    network_mode: host
-    restart: unless-stopped
-    image: traefik:v1.7.16
+    restart: always
+    image: traefik:v2.2.0
     read_only: true
-    command:  --web
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./acme.json:/acme.json
-      - ./traefik.toml:/traefik.toml
-    labels:
-      - 'traefik.frontend.rule=Host:plex.example.com'
-      - 'traefik.port=8080'
-      - 'traefik.enable=true'
-      - 'traefik.backend=web'
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Traefik/traefik.yaml:/traefik.yaml:ro
+      - ./Traefik/etc/traefik:/etc/traefik/
+      - ./Traefik/log:/var/log/traefik/
