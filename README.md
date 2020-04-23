@@ -48,7 +48,7 @@ Go to https://plex.example.com/web and follow plex installation.
 
 enable remote access during installation
 
-Don't worry about remote access in red, you can acess your plex server anyway with your server url or passing by https://app.plex.tv
+Don't worry about remote access in red, you can access your plex server anyway with your server url or passing by https://app.plex.tv
 
 ### FINISH
 
