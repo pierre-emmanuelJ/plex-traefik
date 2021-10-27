@@ -50,6 +50,5 @@ enable remote access during installation
 
 Don't worry about remote access in red, you can access your plex server anyway with your server url or passing by https://app.plex.tv
 
-### FINISH
 
 ## Enjoy
