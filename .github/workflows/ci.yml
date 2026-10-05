@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate the Compose file
+        run: |
+          cp .env.example .env
+          sed -i 's|^# ACME_CA_SERVER=|ACME_CA_SERVER=|' .env
+          docker compose config --quiet
+
+      - name: Start the stack
+        run: |
+          mkdir -p config transcode data
+          docker compose up -d
+
+      - name: Plex answers through Traefik over HTTPS
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -sk -o /dev/null -w '%{http_code}' \
+              --resolve plex.example.com:443:127.0.0.1 https://plex.example.com/identity || true)
+            [ "$code" = 200 ] && exit 0
+            sleep 3
+          done
+          echo "Plex did not answer through Traefik (last status: $code)"
+          exit 1
+
+      - name: HTTP redirects to HTTPS
+        run: |
+          location=$(curl -s -o /dev/null -w '%{redirect_url}' -H 'Host: plex.example.com' http://127.0.0.1/web)
+          test "$location" = "https://plex.example.com/web"
+
+      - name: Logs
+        if: always()
+        run: docker compose logs

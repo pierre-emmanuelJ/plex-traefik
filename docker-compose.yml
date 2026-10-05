@@ -1,49 +1,68 @@
-version: "3"
-services:
-  plex:
-    image: plexinc/pms-docker:latest
-    container_name: plex
-    environment:
-      - TZ=Europe/Paris
-      - PLEX_CLAIM=claim-xxxxxxxxxxxxxx
-      - ADVERTISE_IP=https://plex.example.com:443
-      - PLEX_UID=${USER}
-      - PLEX_GID=${USER}
-      - VERSION=docker
-    volumes:
-      - ./config:/config
-      - ./transcode:/transcode
-      - ./data:/data
-    hostname: plex.example.com
-    ports:
-     - 32400:32400/tcp
-     - 32400:32400/udp
-     - 3005:3005/tcp
-     - 8324:8324/tcp
-     - 32469:32469/tcp
-     - 1900:1900/udp
-     - 32410:32410/udp
-     - 32412:32412/udp
-     - 32413:32413/udp
-     - 32414:32414/udp
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.plex.rule=Host(`plex.example.com`)"
-      - "traefik.http.routers.plex.entrypoints=websecure"
-      - "traefik.http.routers.plex.tls.certresolver=mydnschallenge"
-      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+# Settings come from the .env file next to this one (see .env.example).
 
+services:
   traefik:
-    restart: always
-    image: traefik:v2.4
+    image: traefik:v3.7
+    container_name: traefik
+    restart: unless-stopped
     read_only: true
+    security_opt:
+      - no-new-privileges:true
+    command:
+      - --global.checkNewVersion=false
+      - --global.sendAnonymousUsage=false
+      - --log.level=INFO
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --entryPoints.web.address=:80
+      - --entryPoints.web.http.redirections.entryPoint.to=websecure
+      - --entryPoints.web.http.redirections.entryPoint.scheme=https
+      - --entryPoints.websecure.address=:443
+      - --entryPoints.websecure.http.tls.certResolver=letsencrypt
+      - --certificatesResolvers.letsencrypt.acme.email=${ACME_EMAIL:?set ACME_EMAIL in .env}
+      - --certificatesResolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesResolvers.letsencrypt.acme.caServer=${ACME_CA_SERVER:-https://acme-v02.api.letsencrypt.org/directory}
+      - --certificatesResolvers.letsencrypt.acme.tlsChallenge=true
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Traefik/traefik.yaml:/traefik.yaml:ro
-      - ./Traefik/etc/traefik:/etc/traefik/
-      - ./Traefik/log:/var/log/traefik/
+      - ./letsencrypt:/letsencrypt
+
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    restart: unless-stopped
+    hostname: ${PLEX_SERVER_NAME:-plex}
+    environment:
+      - TZ=${TZ:-UTC}
+      - PLEX_CLAIM=${PLEX_CLAIM:-}
+      - PLEX_UID=${PUID:-1000}
+      - PLEX_GID=${PGID:-1000}
+      # Tells the Plex apps to reach the server through Traefik.
+      - ADVERTISE_IP=https://${DOMAIN:?set DOMAIN in .env}:443
+    volumes:
+      - ./config:/config
+      - ./transcode:/transcode
+      - ${MEDIA_PATH:-./data}:/data
+    ports:
+      # Direct access, used by clients on your local network.
+      - "32400:32400/tcp"
+      # Optional: discovery on the local network (GDM, DLNA, Plex Companion).
+      # Uncomment if you use DLNA players or casting from local devices.
+      # - "1900:1900/udp"
+      # - "3005:3005/tcp"
+      # - "8324:8324/tcp"
+      # - "32410:32410/udp"
+      # - "32412-32414:32412-32414/udp"
+      # - "32469:32469/tcp"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.plex.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.plex.entrypoints=websecure
+      - traefik.http.routers.plex.middlewares=plex-headers
+      - traefik.http.services.plex.loadbalancer.server.port=32400
+      - traefik.http.middlewares.plex-headers.headers.stsSeconds=31536000
+      - traefik.http.middlewares.plex-headers.headers.contentTypeNosniff=true
+      - traefik.http.middlewares.plex-headers.headers.referrerPolicy=same-origin

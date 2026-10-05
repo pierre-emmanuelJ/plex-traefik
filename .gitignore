@@ -1,4 +1,5 @@
-acme.json
+.env
 config/
 data/
 transcode/
+letsencrypt/
